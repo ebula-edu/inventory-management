@@ -7,7 +7,7 @@ A web-based inventory management system designed for store owners and warehouse 
 - Language / version: PHP 8.2.12, JavaScript (ES6+), HTML5, CSS3
 - Framework / version: Laravel 12.69.3
 - Package manager: Composer 2.x, npm 11.12.1 (Node v24.15.0)
-- Database: SQLite (database/database.sqlite)
+- Database: MySQL 8.x / MariaDB (XAMPP `inventory_system`), SQLite (in-memory testing)
 - Testing: PHPUnit 11.x (`php artisan test`)
 - Lint / format: Laravel Pint / EditorConfig
 

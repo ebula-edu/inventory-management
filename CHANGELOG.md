@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Database migrations and `DatabaseSeeder` populating the SQLite catalog with default products, suppliers, and transaction history.
 - Modular Blade layout architecture (`layouts/app.blade.php`) and component partials (`topbar`, `sidebar`, `mobile-tabs`, `alerts`).
 - Modular JavaScript architecture partitioned into manageable ES modules (`navigation.js`, `sidebar.js`, `mega-menu.js`, `events.js`) with complete JSDoc annotations.
+- Configured XAMPP MySQL connection (`inventory_system` database), executed all migrations, and seeded the MySQL database with initial catalog, suppliers, and movement transactions.
 - Full PHPUnit feature test suite (`InventoryControllerTest`, `ProductControllerTest`, `StockControllerTest`, `SettingControllerTest`) with 17 tests and 47 assertions passing.
 
 ### Changed

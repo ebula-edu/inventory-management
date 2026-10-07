@@ -21,8 +21,8 @@ The Inventory System is built on Laravel 12 as a modular monolithic web applicat
   - `Supplier.php`: External vendor information.
 - `database/`:
   - `migrations/`: Schema definitions for `products`, `suppliers`, and `stock_movements`.
-  - `seeders/DatabaseSeeder.php`: Seeds initial catalog, vendors, and movements.
-  - `database.sqlite`: Active SQLite database store.
+  - `database.sqlite`: Fallback / testing SQLite database store.
+  - XAMPP MySQL: Production/development relational database (`inventory_system` at `127.0.0.1:3306`).
 - `public/`:
   - `css/style.css`: Primary application styling with alert banners and responsive tables.
   - `js/script.js`: Main ES module orchestrator.
