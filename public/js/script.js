@@ -1,6 +1,6 @@
 /**
  * @file script.js
- * @description Application orchestrator coordinating navigation, mobile drawer, and mega menu.
+ * @description Application orchestrator coordinating navigation, mobile drawer, mega menu, and product catalog management.
  * Modular components are organized within ./modules/.
  */
 
@@ -8,6 +8,7 @@ import { showPage, updateNavActiveStates, inventorySubPages } from './modules/na
 import { openSidebar, closeSidebar, toggleSideInventory } from './modules/sidebar.js';
 import { toggleMegaMenu, closeMegaMenu } from './modules/mega-menu.js';
 import { initGlobalListeners } from './modules/events.js';
+import { openEditProductModal, closeEditProductModal, filterProductsTable, initProductManager } from './modules/product-manager.js';
 
 // Expose on global window object for Blade template inline event handlers
 window.showPage = (pageID) => {
@@ -21,12 +22,20 @@ window.closeSidebar = closeSidebar;
 window.toggleSideInventory = toggleSideInventory;
 window.toggleMegaMenu = toggleMegaMenu;
 window.closeMegaMenu = closeMegaMenu;
+window.openEditProductModal = openEditProductModal;
+window.closeEditProductModal = closeEditProductModal;
+window.filterProductsTable = filterProductsTable;
 
 // Initialize global event listeners
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGlobalListeners);
-} else {
+const initAll = () => {
     initGlobalListeners();
+    initProductManager();
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+} else {
+    initAll();
 }
 
 export {
@@ -37,5 +46,8 @@ export {
     toggleSideInventory,
     toggleMegaMenu,
     closeMegaMenu,
-    initGlobalListeners,
+    openEditProductModal,
+    closeEditProductModal,
+    filterProductsTable,
+    initAll,
 };

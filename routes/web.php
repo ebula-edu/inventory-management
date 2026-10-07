@@ -28,6 +28,10 @@ Route::get('/inventory', [InventoryController::class, 'overview'])->name('invent
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+Route::get('/products/lookup/{sku}', [ProductController::class, 'lookup'])->name('products.lookup');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 
 // Stock Movements & Audits
 Route::get('/stock', [StockController::class, 'index'])->name('stock.index');

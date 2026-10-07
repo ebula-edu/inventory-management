@@ -116,8 +116,22 @@
             <p>Manage product catalog, unit pricing, categories, and SKU codes.</p>
         </div>
         <div class="card">
+            {{-- Search & Filter Toolbar --}}
+            <div class="table-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="productSearchInput" placeholder="Search by name or SKU..." autocomplete="off">
+                </div>
+                <select class="filter-select" id="productCategoryFilter">
+                    <option value="ALL">All Categories</option>
+                    @foreach ($products->pluck('category')->unique() as $cat)
+                        <option value="{{ strtoupper($cat) }}">{{ $cat }}</option>
+                    @endforeach
+                </select>
+            </div>
+
             <div class="table-responsive">
-                <table class="simple-table">
+                <table class="simple-table" id="productsTable">
                     <thead>
                         <tr>
                             <th>SKU</th>
@@ -127,11 +141,15 @@
                             <th>Quantity</th>
                             <th>Reorder Point</th>
                             <th>Status</th>
+                            <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($products as $product)
-                            <tr>
+                            <tr class="product-row"
+                                data-name="{{ $product->name }}"
+                                data-sku="{{ $product->sku }}"
+                                data-category="{{ strtoupper($product->category) }}">
                                 <td><code>{{ $product->sku }}</code></td>
                                 <td><strong>{{ $product->name }}</strong></td>
                                 <td>{{ $product->category }}</td>
@@ -143,12 +161,43 @@
                                         {{ $product->status_label }}
                                     </span>
                                 </td>
+                                <td>
+                                    <div class="actions-cell" style="justify-content: flex-end;">
+                                        <button type="button" class="btn-sm btn-outline"
+                                            onclick="openEditProductModal({{ json_encode([
+                                                'id' => $product->id,
+                                                'name' => $product->name,
+                                                'sku' => $product->sku,
+                                                'category' => $product->category,
+                                                'location' => $product->location,
+                                                'quantity' => $product->quantity,
+                                                'reorder_point' => $product->reorder_point,
+                                                'price' => $product->price,
+                                            ]) }})">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                        <form method="POST" action="{{ route('products.destroy', $product->id) }}"
+                                            onsubmit="return confirm('Are you sure you want to delete {{ addslashes($product->name) }} ({{ $product->sku }})?');"
+                                            style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-sm btn-danger-sm">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" style="text-align: center; color: #64748b;">No products found in the catalog.</td>
+                                <td colspan="8" style="text-align: center; color: #64748b;">No products found in the catalog.</td>
                             </tr>
                         @endforelse
+                        <tr id="productsEmptyFilterRow" style="display: none;">
+                            <td colspan="8" style="text-align: center; color: #64748b; padding: 20px;">
+                                <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i> No products match your filter criteria.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -219,6 +268,16 @@
             <p>Record newly arrived stock and supplier shipments into the warehouse.</p>
         </div>
         <div class="card">
+            {{-- Quick Barcode / SKU Scanner input --}}
+            <div style="margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                <label for="stockInBarcodeScan" style="font-size: 13px; color: #475569; margin: 0;">
+                    <i class="fa-solid fa-barcode"></i> SKU / Barcode Scan:
+                </label>
+                <input type="text" id="stockInBarcodeScan" placeholder="Type/scan SKU & press Enter..."
+                    style="max-width: 260px; padding: 6px 10px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); const s = document.getElementById('stockInSku'); for(let i=0; i<s.options.length; i++) { if(s.options[i].value.toLowerCase() === this.value.trim().toLowerCase()) { s.selectedIndex = i; break; } } }">
+            </div>
+
             <form method="POST" action="{{ route('stock.in') }}">
                 @csrf
                 <div class="form-grid">
@@ -256,6 +315,16 @@
             <p>Record dispatched items, customer orders, and outbound warehouse movements.</p>
         </div>
         <div class="card">
+            {{-- Quick Barcode / SKU Scanner input --}}
+            <div style="margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                <label for="stockOutBarcodeScan" style="font-size: 13px; color: #475569; margin: 0;">
+                    <i class="fa-solid fa-barcode"></i> SKU / Barcode Scan:
+                </label>
+                <input type="text" id="stockOutBarcodeScan" placeholder="Type/scan SKU & press Enter..."
+                    style="max-width: 260px; padding: 6px 10px; font-size: 13px; border: 1px solid #cbd5e1; border-radius: 4px;"
+                    onkeydown="if(event.key === 'Enter') { event.preventDefault(); const s = document.getElementById('stockOutSku'); for(let i=0; i<s.options.length; i++) { if(s.options[i].value.toLowerCase() === this.value.trim().toLowerCase()) { s.selectedIndex = i; break; } } }">
+            </div>
+
             <form method="POST" action="{{ route('stock.out') }}">
                 @csrf
                 <div class="form-grid">
@@ -596,5 +665,64 @@
             </form>
         </div>
     </section>
+
+    {{-- Edit Product Modal Dialog --}}
+    <div class="modal" id="editProductModal" role="dialog" aria-modal="true" aria-labelledby="editProductModalTitle">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="editProductModalTitle">
+                    <i class="fa-solid fa-pen-to-square" style="color: #2563eb; margin-right: 6px;"></i> Edit Product
+                </h3>
+                <button type="button" class="modal-close" onclick="closeEditProductModal()" aria-label="Close dialog">&times;</button>
+            </div>
+            <form id="editProductForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editProdName">Product Name</label>
+                            <input type="text" name="name" id="editProdName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdSku">SKU Code</label>
+                            <input type="text" name="sku" id="editProdSku" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdCategory">Category</label>
+                            <select name="category" id="editProdCategory" required>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Accessories">Accessories</option>
+                                <option value="Office Supplies">Office Supplies</option>
+                                <option value="Hardware">Hardware</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdLocation">Warehouse Location</label>
+                            <input type="text" name="location" id="editProdLocation" placeholder="e.g. Aisle 3, Bin B">
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdQty">Quantity (pcs)</label>
+                            <input type="number" name="quantity" id="editProdQty" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdPrice">Unit Price ($)</label>
+                            <input type="number" name="price" id="editProdPrice" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdReorderPoint">Reorder Point</label>
+                            <input type="number" name="reorder_point" id="editProdReorderPoint" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeEditProductModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Update Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 @endsection
