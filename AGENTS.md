@@ -58,6 +58,8 @@ Tiebreaker: whatever is easiest for the next maintainer.
 - Inventory overview, product listing, stock in/out tracking, and low-stock alerts.
 - Single root-level Laravel application hosting the inventory interface and assets.
 - Clean separation of public static assets and Blade templates without directory nesting.
+- Full Laravel MVC architecture: Eloquent models (`Product`, `StockMovement`, `Supplier`), Form Requests, RESTful controllers, named routes, and database migrations/seeders.
+- Modular JavaScript architecture partitioned into distinct ES modules (`navigation.js`, `sidebar.js`, `mega-menu.js`, `events.js`).
 
 ### Out of scope
 - Multi-tenant enterprise cloud integrations.
@@ -66,7 +68,7 @@ Tiebreaker: whatever is easiest for the next maintainer.
 
 ### Deferred (with triggers)
 - Relational MySQL/PostgreSQL migration (trigger: production deployment requirements).
-- Backend REST API endpoints for stock CRUD operations (trigger: backend implementation phase).
+- External JSON REST API endpoints for third-party consumers (trigger: mobile or third-party integration phase).
 
 ## Rules of Engagement
 - Ask before guessing.
