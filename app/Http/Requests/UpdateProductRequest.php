@@ -9,13 +9,17 @@ use Illuminate\Validation\Rule;
 /**
  * Class UpdateProductRequest
  *
- * Validates updates to an existing inventory product, ensuring SKU uniqueness
- * while ignoring the record currently being modified.
+ * FILE OVERVIEW:
+ * Form request validator kapag nag-e-edit ng existing na produkto.
+ *
+ * KAILAN ITO TINATAWAG:
+ * - Tinatawag ito ng ProductController@update. Sinisigurado nito na valid ang bagong
+ *   data at hindi nagka-conflict ang SKU sa ibang produkto.
  */
 class UpdateProductRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Pahintulot para mag-update.
      */
     public function authorize(): bool
     {
@@ -23,7 +27,7 @@ class UpdateProductRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Validation rules para sa pag-update ng produkto.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
@@ -36,17 +40,18 @@ class UpdateProductRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'sku' => [
+            'sku'  => [
                 'required',
                 'string',
                 'max:50',
                 Rule::unique('products', 'sku')->ignore($productId),
             ],
-            'category' => ['required', 'string', 'max:100'],
-            'location' => ['nullable', 'string', 'max:100'],
-            'quantity' => ['required', 'integer', 'min:0'],
+            'category'      => ['required', 'string', 'max:100'],
+            'supplier_id'   => ['nullable', 'integer', 'exists:suppliers,id'],
+            'location'      => ['nullable', 'string', 'max:100'],
+            'quantity'      => ['required', 'integer', 'min:0'],
             'reorder_point' => ['nullable', 'integer', 'min:0'],
-            'price' => ['nullable', 'numeric', 'min:0'],
+            'price'         => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

@@ -1,10 +1,30 @@
 /**
  * @file navigation.js
- * @description Manages view navigation, tab transitions, and menu state updates.
+ * @description Manages view navigation, tab transitions, and active state synchronization
+ * across the sidebar, mobile tabs, and topbar title.
  */
 
 /**
- * List of tab IDs associated with the Inventory section dropdown.
+ * Human-readable page titles keyed by page ID.
+ * @type {Record<string, string>}
+ */
+const PAGE_TITLES = {
+    dashboard:            'Dashboard',
+    inventory:            'Inventory Overview',
+    products:             'Products',
+    stock:                'Stock Management',
+    'stock-in':           'Stock In',
+    'stock-out':          'Stock Out',
+    'inventory-management': 'Inventory Management',
+    'low-stock':          'Low Stock Alerts',
+    'add-product':        'Add Product',
+    suppliers:            'Suppliers',
+    reports:              'Reports',
+    settings:             'Settings',
+};
+
+/**
+ * List of page IDs that belong to the Inventory accordion group.
  * @type {string[]}
  */
 export const inventorySubPages = [
@@ -18,59 +38,74 @@ export const inventorySubPages = [
 ];
 
 /**
- * Activates a designated view section and synchronizes active navigation classes.
+ * Activates a target page section and synchronizes all navigation active states.
  *
  * @param {string} pageID - The DOM element ID of the target page container.
  * @returns {void}
  */
 export function showPage(pageID) {
-    const pages = document.querySelectorAll('.page');
-    pages.forEach((p) => {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach((p) => {
         p.classList.remove('active');
     });
 
+    // Show target page
     const targetPage = document.getElementById(pageID);
     if (targetPage) {
         targetPage.classList.add('active');
     }
 
     updateNavActiveStates(pageID);
+    updateTopbarTitle(pageID);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
- * Updates desktop navigation items, mega-menu links, mobile sidebar, and bottom tabs.
+ * Updates the slim topbar title text to reflect the current page.
  *
- * @param {string} pageID - The DOM element ID of the currently active page.
+ * @param {string} pageID - The active page ID.
+ * @returns {void}
+ */
+function updateTopbarTitle(pageID) {
+    const titleEl = document.getElementById('topbarTitle');
+    if (titleEl) {
+        titleEl.textContent = PAGE_TITLES[pageID] ?? pageID;
+    }
+}
+
+/**
+ * Synchronizes active classes on sidebar links, sub-links, and mobile tabs.
+ *
+ * @param {string} pageID - The active page ID.
  * @returns {void}
  */
 export function updateNavActiveStates(pageID) {
     const isInventory = inventorySubPages.includes(pageID);
 
-    document.querySelectorAll('.desktop-nav .nav-link').forEach((link) => {
+    // Sidebar main links
+    document.querySelectorAll('.sidebar .side-link').forEach((link) => {
         const pageAttr = link.getAttribute('data-page');
-        if (link.id === 'desktopInventoryTrigger') {
+        if (link.id === 'sideInventoryToggle') {
             link.classList.toggle('active', isInventory);
+            link.setAttribute('aria-expanded', String(isInventory));
         } else {
             link.classList.toggle('active', pageAttr === pageID);
         }
     });
 
-    document.querySelectorAll('#megaMenu a').forEach((link) => {
+    // Sidebar sub-links (accordion)
+    document.querySelectorAll('.side-sub-link').forEach((link) => {
         link.classList.toggle('active', link.getAttribute('data-page') === pageID);
     });
 
-    document.querySelectorAll('.sidebar .side-link').forEach((link) => {
-        const pageAttr = link.getAttribute('data-page');
-        link.classList.toggle('active', pageAttr === pageID);
-    });
+    // Keep inventory accordion open when any sub-page is active
+    const sideInventory = document.getElementById('sideInventory');
+    if (sideInventory) {
+        sideInventory.classList.toggle('show', isInventory);
+    }
 
-    document.querySelectorAll('.side-dropdown a').forEach((link) => {
-        link.classList.toggle('active', link.getAttribute('data-page') === pageID);
-    });
-
-    const tabs = document.querySelectorAll('.mobile-tabs .tab');
-    tabs.forEach((tab) => {
+    // Mobile bottom tabs
+    document.querySelectorAll('.mobile-tabs .tab').forEach((tab) => {
         const pageAttr = tab.getAttribute('data-page');
         if (pageAttr === 'inventory') {
             tab.classList.toggle('active', isInventory);

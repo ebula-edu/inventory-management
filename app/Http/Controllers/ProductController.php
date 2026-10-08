@@ -13,12 +13,27 @@ use Illuminate\View\View;
 /**
  * Class ProductController
  *
- * Manages product catalog listings, item registration, updates, and deletion.
+ * FILE OVERVIEW:
+ * Controller para sa pamamahala ng mga produkto sa catalog:
+ * - Paglista ng lahat ng produkto (index)
+ * - Pagdagdag ng bagong produkto (create, store)
+ * - Barcode/SKU lookup via JSON API (lookup)
+ * - Pag-update ng detalye ng produkto (update)
+ * - Pagtanggal ng produkto sa imbentaryo (destroy)
+ *
+ * KAILAN ITO TINATAWAG:
+ * - Kapag binuksan ang tab na 'Products' o 'Add Product'.
+ * - Kapag nag-submit ng Add/Edit Product form (`POST /products`, `PUT /products/{product}`).
+ * - Kapag nag-scan ng barcode o nag-search gamit ang SKU lookup API (`GET /products/lookup/{sku}`).
  */
 class ProductController extends Controller
 {
     /**
-     * Display the products catalog tab.
+     * Ipinapakita ang buong listahan ng mga produkto sa Products catalog view.
+     *
+     * @param Request $request
+     * @param InventoryController $inventory
+     * @return View
      */
     public function index(Request $request, InventoryController $inventory): View
     {
@@ -26,7 +41,11 @@ class ProductController extends Controller
     }
 
     /**
-     * Display the add product registration tab.
+     * Ipinapakita ang 'Add Product' form tab.
+     *
+     * @param Request $request
+     * @param InventoryController $inventory
+     * @return View
      */
     public function create(Request $request, InventoryController $inventory): View
     {
@@ -34,7 +53,10 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly registered product in storage.
+     * I-save ang bagong produkto sa database gamit ang na-validate na datos mula sa StoreProductRequest.
+     *
+     * @param StoreProductRequest $request
+     * @return RedirectResponse
      */
     public function store(StoreProductRequest $request): RedirectResponse
     {
@@ -47,11 +69,14 @@ class ProductController extends Controller
 
         return redirect()
             ->route('products.index')
-            ->with('success', "Product '{$product->name}' ({$product->sku}) registered successfully.");
+            ->with('success', "Ang produktong '{$product->name}' ({$product->sku}) ay matagumpay na naitala.");
     }
 
     /**
-     * Display the specified product as JSON.
+     * Ibalik ang impormasyon ng produkto bilang JSON (ginagamit para sa REST API).
+     *
+     * @param Product $product
+     * @return JsonResponse
      */
     public function show(Product $product): JsonResponse
     {
@@ -59,27 +84,35 @@ class ProductController extends Controller
     }
 
     /**
-     * Look up a product by its SKU or barcode code.
+     * Hanapin ang produkto gamit ang SKU o Barcode scanner.
+     * Nagbabalik ng JSON payload para magamit sa client-side JavaScript.
+     *
+     * @param string $sku
+     * @return JsonResponse
      */
     public function lookup(string $sku): JsonResponse
     {
-        $product = Product::where('sku', $sku)->first();
+        $product = Product::with('supplier')->where('sku', $sku)->first();
 
         if (! $product) {
             return response()->json([
-                'found' => false,
-                'message' => "No product found with SKU '{$sku}'",
+                'found'   => false,
+                'message' => "Walang nahanap na produkto na may SKU '{$sku}'",
             ], 404);
         }
 
         return response()->json([
-            'found' => true,
+            'found'   => true,
             'product' => $product,
         ]);
     }
 
     /**
-     * Update the specified product in storage.
+     * I-update ang datos ng produkto (hal. presyo, quantity, category, supplier, o warehouse location).
+     *
+     * @param UpdateProductRequest $request
+     * @param Product $product
+     * @return RedirectResponse
      */
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
@@ -92,20 +125,23 @@ class ProductController extends Controller
 
         return redirect()
             ->route('products.index')
-            ->with('success', "Product '{$product->name}' ({$product->sku}) updated successfully.");
+            ->with('success', "Na-update ang produktong '{$product->name}' ({$product->sku}).");
     }
 
     /**
-     * Remove the specified product from storage.
+     * Tanggalin ang produkto sa database.
+     *
+     * @param Product $product
+     * @return RedirectResponse
      */
     public function destroy(Product $product): RedirectResponse
     {
         $name = $product->name;
-        $sku = $product->sku;
+        $sku  = $product->sku;
         $product->delete();
 
         return redirect()
             ->route('products.index')
-            ->with('success', "Product '{$name}' ({$sku}) has been deleted from inventory.");
+            ->with('success', "Nabura na sa imbentaryo ang produktong '{$name}' ({$sku}).");
     }
 }

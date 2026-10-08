@@ -7,47 +7,76 @@
     {{-- 1. Dashboard View --}}
     <section class="page {{ ($activePage ?? 'dashboard') === 'dashboard' ? 'active' : '' }}" id="dashboard">
         <div class="page-header">
-            <h1>Dashboard</h1>
-            <p>Overview of current stock, inventory status, and recent operations.</p>
+            <div class="page-header-text">
+                <h1>Dashboard</h1>
+                <p>Real-time overview of stock levels, inventory status, and recent movements.</p>
+            </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Items</div>
-                <div class="stat-value">{{ number_format($totalItems) }}</div>
+                <div class="stat-card-icon blue">
+                    <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value">{{ number_format($totalItems) }}</div>
+                    <div class="stat-sub">{{ number_format($totalQuantity) }} total units</div>
+                </div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Low Stock Alerts</div>
-                <div class="stat-value" style="color: #dc2626;">{{ number_format($lowStockCount) }}</div>
+                <div class="stat-card-icon red">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Low Stock Alerts</div>
+                    <div class="stat-value text-danger">{{ number_format($lowStockCount) }}</div>
+                    <div class="stat-sub">Items below reorder point</div>
+                </div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Stock In Today</div>
-                <div class="stat-value" style="color: #16a34a;">+{{ number_format($stockInToday) }}</div>
+                <div class="stat-card-icon green">
+                    <i class="fa-solid fa-arrow-down-to-line" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Stock In Today</div>
+                    <div class="stat-value text-success">+{{ number_format($stockInToday) }}</div>
+                    <div class="stat-sub">Units received today</div>
+                </div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Suppliers</div>
-                <div class="stat-value">{{ number_format($suppliers->count()) }}</div>
+                <div class="stat-card-icon amber">
+                    <i class="fa-solid fa-truck" aria-hidden="true"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Suppliers</div>
+                    <div class="stat-value">{{ number_format($suppliers->count()) }}</div>
+                    <div class="stat-sub">Active vendor contacts</div>
+                </div>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="font-size: 15px; margin-bottom: 12px; color: #0f172a;">Recent Inventory Items</h3>
+            <p class="card-title">
+                <i class="fa-solid fa-clock-rotate-left" aria-hidden="true" style="color:var(--brand-600);margin-right:7px;"></i>
+                Recent Inventory Items
+            </p>
             <div class="table-responsive">
-                <table class="simple-table">
+                <table class="simple-table" aria-label="Recent inventory items">
                     <thead>
                         <tr>
-                            <th>Item Name</th>
-                            <th>SKU</th>
-                            <th>Category</th>
-                            <th>Quantity</th>
-                            <th>Status</th>
+                            <th scope="col">Item Name</th>
+                            <th scope="col">SKU</th>
+                            <th scope="col">Category</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($products->take(6) as $product)
                             <tr>
                                 <td><strong>{{ $product->name }}</strong></td>
-                                <td>{{ $product->sku }}</td>
+                                <td><code>{{ $product->sku }}</code></td>
                                 <td>{{ $product->category }}</td>
                                 <td>{{ number_format($product->quantity) }} pcs</td>
                                 <td>
@@ -58,7 +87,10 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" style="text-align: center; color: #64748b;">No inventory products registered yet.</td>
+                                <td colspan="5" style="text-align:center;color:var(--n-400);padding:32px 14px;">
+                                    <i class="fa-solid fa-inbox" style="display:block;font-size:22px;margin-bottom:8px;" aria-hidden="true"></i>
+                                    No inventory products registered yet.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -165,14 +197,15 @@
                                     <div class="actions-cell" style="justify-content: flex-end;">
                                         <button type="button" class="btn-sm btn-outline"
                                             onclick="openEditProductModal({{ json_encode([
-                                                'id' => $product->id,
-                                                'name' => $product->name,
-                                                'sku' => $product->sku,
-                                                'category' => $product->category,
-                                                'location' => $product->location,
-                                                'quantity' => $product->quantity,
+                                                'id'            => $product->id,
+                                                'name'          => $product->name,
+                                                'sku'           => $product->sku,
+                                                'category'      => $product->category,
+                                                'supplier_id'   => $product->supplier_id,
+                                                'location'      => $product->location,
+                                                'quantity'      => $product->quantity,
                                                 'reorder_point' => $product->reorder_point,
-                                                'price' => $product->price,
+                                                'price'         => $product->price,
                                             ]) }})">
                                             <i class="fa-solid fa-pen-to-square"></i> Edit
                                         </button>
@@ -227,7 +260,12 @@
                         @forelse ($products as $product)
                             <tr>
                                 <td><code>{{ $product->sku }}</code></td>
-                                <td>{{ $product->name }}</td>
+                                <td>
+                                    <strong>{{ $product->name }}</strong>
+                                    <div style="font-size: 11.5px; color: var(--n-400); margin-top: 2px;">
+                                        <i class="fa-solid fa-truck" style="font-size: 10px;"></i> {{ $product->supplier->name ?? 'No Supplier Assigned' }}
+                                    </div>
+                                </td>
                                 <td style="{{ $product->isLowStock() ? 'color: #dc2626; font-weight: 600;' : '' }}">
                                     {{ number_format($product->quantity) }} pcs
                                 </td>
@@ -241,8 +279,9 @@
                                     @if ($product->isLowStock())
                                         <form method="POST" action="{{ route('stock.reorder', $product->id) }}" style="display: inline;">
                                             @csrf
-                                            <button class="btn btn-primary" type="submit" style="padding: 4px 10px; font-size: 12px;">
-                                                Reorder
+                                            <button class="btn btn-primary" type="submit" style="padding: 4px 10px; font-size: 12px;"
+                                                title="Reorder from {{ $product->supplier->name ?? 'Vendor' }}">
+                                                <i class="fa-solid fa-rotate" style="margin-right: 3px;"></i> Reorder
                                             </button>
                                         </form>
                                     @else
@@ -405,6 +444,7 @@
                             <th>Item Name</th>
                             <th>Current Qty</th>
                             <th>Reorder Point</th>
+                            <th>Official Supplier</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -415,17 +455,28 @@
                                 <td style="color: #dc2626; font-weight: 600;">{{ number_format($low->quantity) }} pcs</td>
                                 <td>{{ number_format($low->reorder_point) }} pcs</td>
                                 <td>
+                                    @if ($low->supplier)
+                                        <span class="role-badge" style="display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fa-solid fa-truck" aria-hidden="true"></i>
+                                            <strong>{{ $low->supplier->name }}</strong>
+                                        </span>
+                                    @else
+                                        <span style="color: var(--n-400); font-style: italic;">No vendor assigned</span>
+                                    @endif
+                                </td>
+                                <td>
                                     <form method="POST" action="{{ route('stock.reorder', $low->id) }}" style="display: inline;">
                                         @csrf
-                                        <button class="btn btn-primary" type="submit" style="padding: 4px 10px; font-size: 12px;">
-                                            Reorder Restock
+                                        <button class="btn btn-primary" type="submit" style="padding: 4px 10px; font-size: 12px;"
+                                            title="Reorder +{{ max($low->reorder_point * 2, 20) }} pcs from {{ $low->supplier->name ?? 'Supplier' }}">
+                                            <i class="fa-solid fa-rotate" style="margin-right: 4px;"></i> Reorder (+{{ max($low->reorder_point * 2, 20) }} pcs)
                                         </button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #16a34a; padding: 20px;">
+                                <td colspan="5" style="text-align: center; color: #16a34a; padding: 20px;">
                                     <i class="fa-solid fa-circle-check" style="margin-right: 6px;"></i> All items currently have sufficient stock.
                                 </td>
                             </tr>
@@ -457,10 +508,20 @@
                     <div class="form-group">
                         <label for="prodCategory">Category</label>
                         <select name="category" id="prodCategory" required>
-                            <option value="Electronics" {{ old('category') === 'Electronics' ? 'selected' : '' }}>Electronics</option>
-                            <option value="Accessories" {{ old('category') === 'Accessories' ? 'selected' : '' }}>Accessories</option>
-                            <option value="Office Supplies" {{ old('category') === 'Office Supplies' ? 'selected' : '' }}>Office Supplies</option>
-                            <option value="Hardware" {{ old('category') === 'Hardware' ? 'selected' : '' }}>Hardware</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat }}" {{ old('category') === $cat ? 'selected' : '' }}>{{ $cat }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prodSupplier">Supplier / Vendor</label>
+                        <select name="supplier_id" id="prodSupplier">
+                            <option value="">-- No Supplier Assigned --</option>
+                            @foreach ($suppliers as $s)
+                                <option value="{{ $s->id }}" {{ old('supplier_id') == $s->id ? 'selected' : '' }}>
+                                    {{ $s->name }} ({{ $s->supplied_items }})
+                                </option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="form-group">
@@ -485,32 +546,64 @@
 
     {{-- 10. Suppliers Directory --}}
     <section class="page {{ ($activePage ?? '') === 'suppliers' ? 'active' : '' }}" id="suppliers">
-        <div class="page-header">
-            <h1>Suppliers</h1>
-            <p>Vendor contacts, partner directories, and supplied merchandise.</p>
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+            <div class="page-header-text">
+                <h1>Suppliers</h1>
+                <p>Vendor contacts, partner directories, and supplied merchandise.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="openAddSupplierModal()">
+                <i class="fa-solid fa-plus" style="margin-right: 6px;"></i> Add Supplier
+            </button>
         </div>
         <div class="card">
             <div class="table-responsive">
-                <table class="simple-table">
+                <table class="simple-table" id="suppliersTable">
                     <thead>
                         <tr>
                             <th>Supplier Name</th>
                             <th>Contact Email</th>
                             <th>Phone</th>
                             <th>Supplied Items</th>
+                            <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($suppliers as $sup)
                             <tr>
                                 <td><strong>{{ $sup->name }}</strong></td>
-                                <td><a href="mailto:{{ $sup->email }}">{{ $sup->email }}</a></td>
+                                <td><a href="mailto:{{ $sup->email }}" style="color: var(--brand-600); text-decoration: none;">{{ $sup->email }}</a></td>
                                 <td>{{ $sup->phone }}</td>
                                 <td>{{ $sup->supplied_items }}</td>
+                                <td>
+                                    <div class="actions-cell" style="justify-content: flex-end;">
+                                        <button type="button" class="btn-sm btn-outline"
+                                            onclick="openEditSupplierModal({{ json_encode([
+                                                'id' => $sup->id,
+                                                'name' => $sup->name,
+                                                'email' => $sup->email,
+                                                'phone' => $sup->phone,
+                                                'supplied_items' => $sup->supplied_items,
+                                            ]) }})">
+                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                        </button>
+                                        <form method="POST" action="{{ route('suppliers.destroy', $sup->id) }}"
+                                            onsubmit="return confirm('Are you sure you want to delete supplier {{ addslashes($sup->name) }}?');"
+                                            style="display: inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn-sm btn-danger-sm">
+                                                <i class="fa-solid fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" style="text-align: center; color: #64748b;">No suppliers currently registered.</td>
+                                <td colspan="5" style="text-align: center; color: var(--n-400); padding: 32px 14px;">
+                                    <i class="fa-solid fa-truck" style="display: block; font-size: 24px; margin-bottom: 8px;" aria-hidden="true"></i>
+                                    No suppliers registered yet. Click &ldquo;Add Supplier&rdquo; above to add your first vendor.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -528,7 +621,10 @@
 
         <div class="card">
             <div class="chart-header">
-                <h3 style="font-size: 15px; color: #0f172a;">Stock Movement (2026)</h3>
+                <div>
+                    <h3 style="font-size: 15px; color: #0f172a; margin: 0;">Stock Movement ({{ $currentYear }})</h3>
+                    <p style="font-size: 12.5px; color: var(--n-500); margin: 3px 0 0;">Real database stock inbound & outbound movements by month.</p>
+                </div>
                 <div class="chart-legend">
                     <div class="legend-item">
                         <span class="legend-dot legend-blue"></span>
@@ -543,69 +639,19 @@
 
             <div class="bar-chart-wrapper">
                 <div class="bar-chart">
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 65%;" title="Stock In: 65"></div>
-                            <div class="chart-bar out" style="height: 40%;" title="Stock Out: 40"></div>
+                    @foreach ($monthlyMovements as $m)
+                        @php
+                            $inHeight = $maxMovementQty > 0 && $m['in'] > 0 ? max(8, round(($m['in'] / $maxMovementQty) * 100)) : 0;
+                            $outHeight = $maxMovementQty > 0 && $m['out'] > 0 ? max(8, round(($m['out'] / $maxMovementQty) * 100)) : 0;
+                        @endphp
+                        <div class="chart-col">
+                            <div class="bars-group">
+                                <div class="chart-bar in" style="height: {{ $inHeight }}%;" title="{{ $m['month'] }}: Stock In {{ number_format($m['in']) }} pcs"></div>
+                                <div class="chart-bar out" style="height: {{ $outHeight }}%;" title="{{ $m['month'] }}: Stock Out {{ number_format($m['out']) }} pcs"></div>
+                            </div>
+                            <span class="col-label">{{ $m['month'] }}</span>
                         </div>
-                        <span class="col-label">Jan</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 80%;" title="Stock In: 80"></div>
-                            <div class="chart-bar out" style="height: 55%;" title="Stock Out: 55"></div>
-                        </div>
-                        <span class="col-label">Feb</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 45%;" title="Stock In: 45"></div>
-                            <div class="chart-bar out" style="height: 70%;" title="Stock Out: 70"></div>
-                        </div>
-                        <span class="col-label">Mar</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 90%;" title="Stock In: 90"></div>
-                            <div class="chart-bar out" style="height: 60%;" title="Stock Out: 60"></div>
-                        </div>
-                        <span class="col-label">Apr</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 75%;" title="Stock In: 75"></div>
-                            <div class="chart-bar out" style="height: 50%;" title="Stock Out: 50"></div>
-                        </div>
-                        <span class="col-label">May</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 85%;" title="Stock In: 85"></div>
-                            <div class="chart-bar out" style="height: 65%;" title="Stock Out: 65"></div>
-                        </div>
-                        <span class="col-label">Jun</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 60%;" title="Stock In: 60"></div>
-                            <div class="chart-bar out" style="height: 45%;" title="Stock Out: 45"></div>
-                        </div>
-                        <span class="col-label">Jul</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 70%;" title="Stock In: 70"></div>
-                            <div class="chart-bar out" style="height: 50%;" title="Stock Out: 50"></div>
-                        </div>
-                        <span class="col-label">Aug</span>
-                    </div>
-                    <div class="chart-col">
-                        <div class="bars-group">
-                            <div class="chart-bar in" style="height: 95%;" title="Stock In: 95"></div>
-                            <div class="chart-bar out" style="height: 80%;" title="Stock Out: 80"></div>
-                        </div>
-                        <span class="col-label">Sep</span>
-                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -646,18 +692,28 @@
         <div class="card">
             <form method="POST" action="{{ route('settings.update') }}">
                 @csrf
-                <div class="form-group" style="max-width: 320px; margin-bottom: 14px;">
-                    <label for="currencySelect">Default Currency</label>
-                    <select name="currency" id="currencySelect" required>
-                        <option value="USD ($)" {{ $currency === 'USD ($)' ? 'selected' : '' }}>USD ($)</option>
-                        <option value="EUR (€)" {{ $currency === 'EUR (€)' ? 'selected' : '' }}>EUR (€)</option>
-                        <option value="GBP (£)" {{ $currency === 'GBP (£)' ? 'selected' : '' }}>GBP (£)</option>
-                        <option value="PHP (₱)" {{ $currency === 'PHP (₱)' ? 'selected' : '' }}>PHP (₱)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="max-width: 320px; margin-bottom: 16px;">
-                    <label for="lowStockThreshold">Default Low Stock Alert Threshold</label>
-                    <input type="number" name="low_stock_threshold" id="lowStockThreshold" value="{{ $lowStockThreshold }}" min="1" max="1000" required>
+                <div class="form-grid" style="max-width: 680px; margin-bottom: 18px;">
+                    <div class="form-group">
+                        <label for="settingAdminName">Administrator Name</label>
+                        <input type="text" name="admin_name" id="settingAdminName" value="{{ session('admin_name', 'Administrator') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="settingAdminEmail">Administrator Email</label>
+                        <input type="email" name="admin_email" id="settingAdminEmail" value="{{ session('admin_email', 'admin@inventory.local') }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="currencySelect">Default Currency</label>
+                        <select name="currency" id="currencySelect" required>
+                            <option value="USD ($)" {{ $currency === 'USD ($)' ? 'selected' : '' }}>USD ($)</option>
+                            <option value="EUR (€)" {{ $currency === 'EUR (€)' ? 'selected' : '' }}>EUR (€)</option>
+                            <option value="GBP (£)" {{ $currency === 'GBP (£)' ? 'selected' : '' }}>GBP (£)</option>
+                            <option value="PHP (₱)" {{ $currency === 'PHP (₱)' ? 'selected' : '' }}>PHP (₱)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lowStockThreshold">Default Low Stock Alert Threshold</label>
+                        <input type="number" name="low_stock_threshold" id="lowStockThreshold" value="{{ $lowStockThreshold }}" min="1" max="1000" required>
+                    </div>
                 </div>
                 <button class="btn btn-primary" type="submit">
                     <i class="fa-solid fa-floppy-disk" style="margin-right: 6px;"></i> Save System Settings
@@ -691,10 +747,18 @@
                         <div class="form-group">
                             <label for="editProdCategory">Category</label>
                             <select name="category" id="editProdCategory" required>
-                                <option value="Electronics">Electronics</option>
-                                <option value="Accessories">Accessories</option>
-                                <option value="Office Supplies">Office Supplies</option>
-                                <option value="Hardware">Hardware</option>
+                                @foreach ($categories as $cat)
+                                    <option value="{{ $cat }}">{{ $cat }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editProdSupplier">Supplier / Vendor</label>
+                            <select name="supplier_id" id="editProdSupplier">
+                                <option value="">-- No Supplier Assigned --</option>
+                                @foreach ($suppliers as $s)
+                                    <option value="{{ $s->id }}">{{ $s->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="form-group">
@@ -719,6 +783,89 @@
                     <button type="button" class="btn btn-outline" onclick="closeEditProductModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">
                         <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Update Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Add Supplier Modal Dialog --}}
+    <div class="modal" id="addSupplierModal" role="dialog" aria-modal="true" aria-labelledby="addSupplierModalTitle">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="addSupplierModalTitle">
+                    <i class="fa-solid fa-truck" style="color: #2563eb; margin-right: 6px;"></i> Register New Supplier
+                </h3>
+                <button type="button" class="modal-close" onclick="closeAddSupplierModal()" aria-label="Close dialog">&times;</button>
+            </div>
+            <form method="POST" action="{{ route('suppliers.store') }}">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="addSupplierName">Supplier / Vendor Name</label>
+                            <input type="text" name="name" id="addSupplierName" placeholder="e.g. Nexus Logistics Corp." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addSupplierEmail">Contact Email</label>
+                            <input type="email" name="email" id="addSupplierEmail" placeholder="vendor@nexus.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addSupplierPhone">Phone Number</label>
+                            <input type="text" name="phone" id="addSupplierPhone" placeholder="+1 (555) 012-3456" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="addSupplierItems">Supplied Items / Product Lines</label>
+                            <input type="text" name="supplied_items" id="addSupplierItems" placeholder="e.g. Cables, Adapters, Keyboards" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeAddSupplierModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Save Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Edit Supplier Modal Dialog --}}
+    <div class="modal" id="editSupplierModal" role="dialog" aria-modal="true" aria-labelledby="editSupplierModalTitle">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="editSupplierModalTitle">
+                    <i class="fa-solid fa-pen-to-square" style="color: #2563eb; margin-right: 6px;"></i> Edit Supplier Details
+                </h3>
+                <button type="button" class="modal-close" onclick="closeEditSupplierModal()" aria-label="Close dialog">&times;</button>
+            </div>
+            <form id="editSupplierForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="editSupplierName">Supplier Name</label>
+                            <input type="text" name="name" id="editSupplierName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSupplierEmail">Contact Email</label>
+                            <input type="email" name="email" id="editSupplierEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSupplierPhone">Phone Number</label>
+                            <input type="text" name="phone" id="editSupplierPhone" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="editSupplierItems">Supplied Items</label>
+                            <input type="text" name="supplied_items" id="editSupplierItems" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeEditSupplierModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Update Supplier
                     </button>
                 </div>
             </form>

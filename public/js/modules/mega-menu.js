@@ -1,43 +1,6 @@
 /**
  * @file mega-menu.js
- * @description Controls the desktop mega-menu dropdown for inventory sections.
+ * @deprecated Since v1.1.0 — The desktop mega-menu was replaced by the permanent left sidebar.
+ * This file is no longer imported or used. It is kept for reference only.
+ * Safe to delete in a future cleanup pass.
  */
-
-/**
- * Toggles desktop mega-menu dropdown visibility.
- *
- * @param {Event} [event] - Optional click event to prevent bubbling.
- * @returns {void}
- */
-export function toggleMegaMenu(event) {
-    if (event) {
-        event.stopPropagation();
-    }
-
-    const mega = document.getElementById('megaMenu');
-    const parentItem = document.getElementById('desktopInventoryItem');
-
-    if (mega) {
-        const isOpen = mega.classList.toggle('show');
-        if (parentItem) {
-            parentItem.classList.toggle('open', isOpen);
-        }
-    }
-}
-
-/**
- * Closes desktop mega-menu dropdown.
- *
- * @returns {void}
- */
-export function closeMegaMenu() {
-    const mega = document.getElementById('megaMenu');
-    const parentItem = document.getElementById('desktopInventoryItem');
-
-    if (mega) {
-        mega.classList.remove('show');
-    }
-    if (parentItem) {
-        parentItem.classList.remove('open');
-    }
-}

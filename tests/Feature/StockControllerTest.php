@@ -98,15 +98,31 @@ class StockControllerTest extends TestCase
     }
 
     /**
-     * Test reorder action increments stock by at least reorder point threshold.
+     * Test reorder action increments stock and records the supplier in movement notes.
      */
     public function test_reorder_increases_stock(): void
     {
+        $supplier = \App\Models\Supplier::create([
+            'name'           => 'Apex Global Distribution',
+            'email'          => 'contact@apexglobal.test',
+            'phone'          => '+1 555 777 8888',
+            'supplied_items' => 'Sensors, Keyboards',
+        ]);
+
+        $this->product->update(['supplier_id' => $supplier->id]);
+
         $response = $this->post(route('stock.reorder', $this->product->id));
 
         $response->assertSessionHas('success');
+        $response->assertSessionHas('success', fn ($msg) => str_contains($msg, 'Apex Global Distribution'));
 
         $this->product->refresh();
         $this->assertGreaterThan(20, $this->product->quantity);
+
+        $this->assertDatabaseHas('stock_movements', [
+            'product_id' => $this->product->id,
+            'type'       => 'in',
+            'notes'      => 'Reordered from supplier: Apex Global Distribution',
+        ]);
     }
 }

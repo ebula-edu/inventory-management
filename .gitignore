@@ -1,24 +1,47 @@
-*.log
-.DS_Store
+# Application & Environment
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+auth.json
+
+# Dependencies
 /node_modules
+/vendor
+
+# Storage & Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/storage/*.key
+/storage/pail
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Local Databases
+database/*.sqlite*
+*.sqlite
+*.sqlite-journal
+
+# Compiled Public Assets
 /public/build
 /public/hot
 /public/storage
-/storage/*.key
-/storage/pail
-/vendor
+
+# IDEs & OS Meta
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+.phpunit.result.cache
+/.phpunit.cache
 Homestead.json
 Homestead.yaml
-Thumbs.db

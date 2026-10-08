@@ -1,35 +1,42 @@
 /**
  * @file script.js
- * @description Application orchestrator coordinating navigation, mobile drawer, mega menu, and product catalog management.
- * Modular components are organized within ./modules/.
+ * @description Application orchestrator: navigation, sidebar, topbar panels,
+ * product manager, supplier manager, and global events.
+ * All sub-modules are in ./modules/.
  */
 
 import { showPage, updateNavActiveStates, inventorySubPages } from './modules/navigation.js';
 import { openSidebar, closeSidebar, toggleSideInventory } from './modules/sidebar.js';
-import { toggleMegaMenu, closeMegaMenu } from './modules/mega-menu.js';
 import { initGlobalListeners } from './modules/events.js';
 import { openEditProductModal, closeEditProductModal, filterProductsTable, initProductManager } from './modules/product-manager.js';
+import { openAddSupplierModal, closeAddSupplierModal, openEditSupplierModal, closeEditSupplierModal, initSupplierManager } from './modules/supplier-manager.js';
+import { initTopbar, toggleNotifPanel, closeNotifPanel, toggleProfilePanel, closeProfilePanel } from './modules/topbar.js';
 
-// Expose on global window object for Blade template inline event handlers
-window.showPage = (pageID) => {
-    closeMegaMenu();
-    showPage(pageID);
-};
-window.updateNavActiveStates = updateNavActiveStates;
-window.inventorySubPages = inventorySubPages;
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
-window.toggleSideInventory = toggleSideInventory;
-window.toggleMegaMenu = toggleMegaMenu;
-window.closeMegaMenu = closeMegaMenu;
-window.openEditProductModal = openEditProductModal;
-window.closeEditProductModal = closeEditProductModal;
-window.filterProductsTable = filterProductsTable;
+// ---- Window globals for Blade template inline handlers ----
+window.showPage               = showPage;
+window.updateNavActiveStates  = updateNavActiveStates;
+window.inventorySubPages      = inventorySubPages;
+window.openSidebar            = openSidebar;
+window.closeSidebar           = closeSidebar;
+window.toggleSideInventory    = toggleSideInventory;
+window.openEditProductModal   = openEditProductModal;
+window.closeEditProductModal  = closeEditProductModal;
+window.filterProductsTable    = filterProductsTable;
+window.openAddSupplierModal   = openAddSupplierModal;
+window.closeAddSupplierModal  = closeAddSupplierModal;
+window.openEditSupplierModal  = openEditSupplierModal;
+window.closeEditSupplierModal = closeEditSupplierModal;
+window.toggleNotifPanel       = toggleNotifPanel;
+window.closeNotifPanel        = closeNotifPanel;
+window.toggleProfilePanel     = toggleProfilePanel;
+window.closeProfilePanel      = closeProfilePanel;
 
-// Initialize global event listeners
+// ---- Bootstrap all modules ----
 const initAll = () => {
     initGlobalListeners();
     initProductManager();
+    initSupplierManager();
+    initTopbar();
 };
 
 if (document.readyState === 'loading') {
@@ -44,10 +51,16 @@ export {
     openSidebar,
     closeSidebar,
     toggleSideInventory,
-    toggleMegaMenu,
-    closeMegaMenu,
     openEditProductModal,
     closeEditProductModal,
     filterProductsTable,
+    openAddSupplierModal,
+    closeAddSupplierModal,
+    openEditSupplierModal,
+    closeEditSupplierModal,
+    toggleNotifPanel,
+    closeNotifPanel,
+    toggleProfilePanel,
+    closeProfilePanel,
     initAll,
 };

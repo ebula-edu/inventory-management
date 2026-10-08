@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,9 @@ Route::post('/stock/{product}/reorder', [StockController::class, 'reorder'])->na
 
 // Suppliers
 Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
+Route::post('/suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
+Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('suppliers.update');
+Route::delete('/suppliers/{supplier}', [SupplierController::class, 'destroy'])->name('suppliers.destroy');
 
 // Reports & Analytics
 Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
@@ -48,3 +52,6 @@ Route::get('/reports', [ReportController::class, 'index'])->name('reports.index'
 // Settings
 Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
 Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+// Notifications JSON feed (for topbar panel)
+Route::get('/api/notifications', [NotificationController::class, 'index'])->name('notifications.index');

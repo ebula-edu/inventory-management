@@ -1,10 +1,15 @@
 /**
  * @file product-manager.js
- * @description Provides interactive client-side product catalog filtering, edit modal handling, and SKU barcode lookups.
+ * @description Nagbibigay ng interactive search filter, barcode scanning,
+ * at modal lifecycle para sa Product Catalog.
+ *
+ * KAILAN ITO GINAGAMIT:
+ * - Sa tuwing nagta-type sa product search bar o nagpapalit ng category filter.
+ * - Kapag pinipindot ang 'Edit' button sa Products table para mag-pop up ang modal dialog.
  */
 
 /**
- * Filters the product table rows based on search text and category dropdown value.
+ * Filter ng table rows base sa search keyword (Pangalan o SKU) at category.
  *
  * @returns {void}
  */
@@ -41,13 +46,14 @@ export function filterProductsTable() {
 }
 
 /**
- * Opens and populates the Edit Product modal dialog.
+ * Buksan at punan ang Edit Product modal dialog gamit ang kasalukuyang datos ng produkto.
  *
- * @param {Object} product - Product attributes to edit.
+ * @param {Object} product - Attribute details ng produkto
  * @param {number|string} product.id
  * @param {string} product.name
  * @param {string} product.sku
  * @param {string} product.category
+ * @param {number|string|null} [product.supplier_id]
  * @param {string} [product.location]
  * @param {number|string} product.quantity
  * @param {number|string} product.reorder_point
@@ -70,6 +76,7 @@ export function openEditProductModal(product) {
     setVal('editProdName', product.name);
     setVal('editProdSku', product.sku);
     setVal('editProdCategory', product.category);
+    setVal('editProdSupplier', product.supplier_id ?? '');
     setVal('editProdLocation', product.location || '');
     setVal('editProdQty', product.quantity);
     setVal('editProdReorderPoint', product.reorder_point);
@@ -79,7 +86,7 @@ export function openEditProductModal(product) {
 }
 
 /**
- * Closes the Edit Product modal dialog.
+ * Isara ang Edit Product modal dialog.
  *
  * @returns {void}
  */
@@ -91,7 +98,7 @@ export function closeEditProductModal() {
 }
 
 /**
- * Initializes real-time search and barcode quick-lookup event listeners.
+ * Simulan ang event listeners para sa search, filter, at modal backdrop clicks.
  *
  * @returns {void}
  */
@@ -106,7 +113,7 @@ export function initProductManager() {
         categorySelect.addEventListener('change', filterProductsTable);
     }
 
-    // Modal background click dismissal
+    // Modal background click dismissal: kapag nag-click sa labas ng card, isara
     const modal = document.getElementById('editProductModal');
     if (modal) {
         modal.addEventListener('click', (event) => {

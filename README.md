@@ -1,59 +1,125 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📦 Inventory System — Warehouse & Stock Management
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, fast, and responsive web-based inventory management system designed for store managers, warehouse staff, and business owners to track stock levels, monitor low stock alerts, manage product catalogs, and handle inbound/outbound stock operations reliably.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **📊 Dashboard & Live Analytics**: Real-time overview of total catalog items, daily stock-in movements, low-stock alerts, and dynamic monthly movement bar charts.
+- **🏷️ Product Catalog**: Full product listing with category filtering, instant SKU search, modal-based item registration, and live editing.
+- **🚚 Supplier Management**: Full vendor directory with contact details, supplied product lines, and interactive modal dialogs for adding and editing suppliers.
+- **📥 Stock In & 📤 Stock Out**:
+  - Inbound deliveries automatically increment stock counts and log audit records.
+  - Outbound dispatches strictly enforce available inventory limits with real-time validation to prevent negative stock balances.
+- **⚡ Official Supplier Reordering**: Low stock alerts identify each product's official vendor and support one-click restock reordering attributed directly to that supplier.
+- **🔔 Live Notifications & Alerts**: Polled notification feed on the topbar and auto-dismissing flash toast messages (with manual close button).
+- **📱 Responsive Layout**: Fixed desktop sidebar navigation with mobile-friendly drawer and touch-friendly controls.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🛠️ Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Backend**: PHP 8.2+ · [Laravel 12](https://laravel.com)
+- **Database**: Standard Relational SQL (SQLite for local zero-config development; MySQL / MariaDB for server deployments)
+- **Frontend**: Blade Templates · Vanilla CSS3 (Design Tokens) · Modular ES6+ JavaScript
+- **Asset Pipeline**: [Vite](https://vite.dev)
+- **Testing**: PHPUnit 11 (Feature & Unit suites)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🚀 Quick Start Guide
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Prerequisites
+Ensure you have the following installed on your machine:
+- PHP 8.2 or higher
+- Composer 2.x
+- Node.js (v18+) & npm
 
-### Premium Partners
+### 2. Installation Steps
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1. **Clone the repository and enter the directory**:
+   ```bash
+   git clone <repository-url>
+   cd inventory-system
+   ```
 
-## Contributing
+2. **Install PHP and Node dependencies**:
+   ```bash
+   composer install
+   npm install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Configure Environment File**:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-## Code of Conduct
+4. **Set Up the Database**:
+   - **Option A: SQLite (Quickest, Zero Configuration)**
+     ```bash
+     touch database/database.sqlite
+     # Set DB_CONNECTION=sqlite in your .env file
+     php artisan migrate --seed
+     ```
+   - **Option B: MySQL / MariaDB**
+     Configure your credentials in `.env`:
+     ```env
+     DB_CONNECTION=mysql
+     DB_HOST=127.0.0.1
+     DB_PORT=3306
+     DB_DATABASE=inventory_system
+     DB_USERNAME=root
+     DB_PASSWORD=
+     ```
+     Then run the migrations:
+     ```bash
+     php artisan migrate --seed
+     ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5. **Build Frontend Assets**:
+   ```bash
+   npm run build
+   ```
 
-## Security Vulnerabilities
+6. **Start the Development Server**:
+   ```bash
+   php artisan serve
+   ```
+   Open your browser and navigate to: **`http://127.0.0.1:8000`**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🧪 Automated Testing
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The project includes automated feature and unit test coverage verifying catalog integrity, stock adjustments, negative balance protection, and supplier management.
+
+Run the test suite:
+```bash
+php artisan test
+```
+
+---
+
+## 📚 Project Documentation
+
+Detailed guides and architecture references are available in the [`docs/`](docs/) directory:
+
+- 📖 **[Beginner Study Guide](docs/beginner-guide.md)**: Taglish walkthrough explaining file-by-file purposes, when each file is called, and how MVC functions.
+- 🗄️ **[Database Design & ERD](docs/database.md)**: Full relational SQL design, Mermaid ERD diagram, table structures, and sample queries.
+- 🔄 **[System Data Flows](docs/data-flow.md)**: Visual sequence diagrams illustrating the lifecycle of Stock In, Stock Out, Supplier Reordering, and Notifications.
+- 🏛️ **[Application Architecture](docs/architecture.md)**: Directory map and controller responsibilities.
+
+---
+
+## ⚙️ Configuration & Server Notes
+
+- **Permission Notice**: When running server control tools or modifying core server `.ini` configuration files on your operating system, always launch the control application with **Administrator / Elevated Privileges** ("Run as administrator" on Windows or `sudo` on Linux) to prevent permission errors when saving settings.
+- **Database Switching**: Switching between SQLite and MySQL only requires updating `DB_CONNECTION` in `.env` and running `php artisan migrate`.
+
+---
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
