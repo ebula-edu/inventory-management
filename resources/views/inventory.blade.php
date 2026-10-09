@@ -185,7 +185,7 @@
                                 <td><code>{{ $product->sku }}</code></td>
                                 <td><strong>{{ $product->name }}</strong></td>
                                 <td>{{ $product->category }}</td>
-                                <td>${{ number_format($product->price, 2) }}</td>
+                                <td>{{ $currencySymbol }}{{ number_format($product->price, 2) }}</td>
                                 <td>{{ number_format($product->quantity) }}</td>
                                 <td>{{ number_format($product->reorder_point) }}</td>
                                 <td>
@@ -533,7 +533,7 @@
                         <input type="number" name="quantity" id="prodQty" placeholder="0" min="0" value="{{ old('quantity', 0) }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="prodPrice">Unit Price ($)</label>
+                        <label for="prodPrice">Unit Price ({{ $currencySymbol }})</label>
                         <input type="number" name="price" id="prodPrice" step="0.01" min="0" placeholder="0.00" value="{{ old('price', '0.00') }}">
                     </div>
                 </div>
@@ -770,7 +770,7 @@
                             <input type="number" name="quantity" id="editProdQty" min="0" required>
                         </div>
                         <div class="form-group">
-                            <label for="editProdPrice">Unit Price ($)</label>
+                            <label for="editProdPrice">Unit Price ({{ $currencySymbol }})</label>
                             <input type="number" name="price" id="editProdPrice" step="0.01" min="0">
                         </div>
                         <div class="form-group">

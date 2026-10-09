@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,5 +33,19 @@ class SettingControllerTest extends TestCase
         $response->assertSessionHas('admin_email', 'jane.lead@warehouse.local');
         $response->assertSessionHas('inventory_currency', 'EUR (€)');
         $response->assertSessionHas('inventory_low_stock_threshold', 15);
+
+        Product::create([
+            'name' => 'Currency Test Product',
+            'sku' => 'CURRENCY-TEST-1',
+            'category' => 'Electronics',
+            'quantity' => 5,
+            'reorder_point' => 1,
+            'price' => 42.50,
+        ]);
+
+        $this->get(route('products.index'))
+            ->assertOk()
+            ->assertSee('€42.50')
+            ->assertSee('Unit Price (€)');
     }
 }

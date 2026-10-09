@@ -45,3 +45,9 @@ Thumbs.db
 /.phpunit.cache
 Homestead.json
 Homestead.yaml
+
+AGENTS.md
+Skills.md
+CHANGELOG.md
+.vercel
+.env*

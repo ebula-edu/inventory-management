@@ -87,6 +87,12 @@ class InventoryController extends Controller
 
         // Currency at threshold preferences mula sa session
         $currency = session('inventory_currency', 'USD ($)');
+        $currencySymbol = match ($currency) {
+            'EUR (€)' => '€',
+            'GBP (£)' => '£',
+            'PHP (₱)' => '₱',
+            default => '$',
+        };
         $lowStockThreshold = session('inventory_low_stock_threshold', 10);
 
         // Buwanang aggregate ng stock movements para sa kasalukuyang taon (Real Database Data)
@@ -132,6 +138,7 @@ class InventoryController extends Controller
             'stockInToday'      => $stockInToday,
             'recentMovements'   => $recentMovements,
             'currency'          => $currency,
+            'currencySymbol'    => $currencySymbol,
             'lowStockThreshold' => $lowStockThreshold,
             'monthlyMovements'  => $monthlyMovements,
             'maxMovementQty'    => $maxMovementQty,
